@@ -10,6 +10,7 @@ import 'package:push_app/presentation/providers/notifications_provider.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+ 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -30,7 +31,51 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Push App',
       theme: AppTheme().getTheme(),
-      routerConfig: AppRouter().appRouter,
+      routerConfig: appRouter,
+      builder: (context, child) => HandleNotificationInteractions(child: child!),
     );
+  }
+}
+
+class HandleNotificationInteractions extends ConsumerStatefulWidget {
+
+  final Widget child;
+  const HandleNotificationInteractions({super.key, required this.child});
+
+  @override
+  HandleNotificationInteractionsState createState() => HandleNotificationInteractionsState();
+}
+
+class HandleNotificationInteractionsState extends ConsumerState<HandleNotificationInteractions> {
+
+  Future<void> setupInteractedMessage() async {
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    ref.read(notificationsProvider.notifier)
+      .handleRemoteMessage(message);
+
+    final messageId = message.messageId?.replaceAll(':', '').replaceAll('%', '') ?? '';
+    appRouter.push("/push-details/$messageId");
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    setupInteractedMessage();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }

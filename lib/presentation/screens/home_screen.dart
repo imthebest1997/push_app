@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:push_app/presentation/providers/notifications_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -35,10 +36,12 @@ class _HomeView extends ConsumerWidget {
     return ListView.builder(
       itemCount: notifications.notifications.length,
       itemBuilder: (context, index) {
+        final notification = notifications.notifications[index];
         return ListTile(
-          title: Text(notifications.notifications[index].title),
-          subtitle: Text(notifications.notifications[index].body),
-          leading: notifications.notifications[index].imageUrl != null ? Image.network(notifications.notifications[index].imageUrl!) : null,
+          title: Text(notification.title),
+          subtitle: Text(notification.body),
+          leading: notification.imageUrl != null ? Image.network(notification.imageUrl!) : null,
+          onTap: () => context.push("/push-details/${notification.messageId}"),
         );
       },
     );

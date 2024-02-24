@@ -37,8 +37,8 @@ class NotificationsProvider extends StateNotifier<NotificationsState> {
       sentDate: message.sentTime ?? DateTime.now(),
       data: message.data,
       imageUrl: Platform.isAndroid
-          ? message.notification!.android?.imageUrl
-          : message.notification!.apple?.imageUrl,
+        ? message.notification!.android?.imageUrl
+        : message.notification!.apple?.imageUrl,
     );
 
     state = state.copyWith(notifications: [notification, ...state.notifications]);
@@ -65,6 +65,13 @@ class NotificationsProvider extends StateNotifier<NotificationsState> {
   void _initialStatusCheck() async {
     final settings = await FirebaseMessaging.instance.getNotificationSettings();
     state = state.copyWith(status: settings.authorizationStatus);
+  }
+
+  PushMessage? getMessageById(String pushMessageId) {
+    final exist = state.notifications.any((element) => element.messageId == pushMessageId);
+    if (!exist) return null;
+
+    return state.notifications.firstWhere((element) => element.messageId == pushMessageId);
   }
 }
 
