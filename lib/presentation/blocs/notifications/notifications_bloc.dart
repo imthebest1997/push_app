@@ -19,7 +19,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-
   NotificationsBloc() : super(const NotificationsState()) {
     on<NotificationStatusChanged>( _notificationsStatusChange );
     on<NotificationReceived>( _onPushMessageReceived );
@@ -48,7 +47,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     print('Token: $token');
   }
 
-  void _handleRemoteMessage(RemoteMessage message){
+  void handleRemoteMessage(RemoteMessage message){
     if(message.notification == null) return;
 
     final notification = PushMessage(
@@ -64,14 +63,19 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
         : message.notification?.apple?.imageUrl
     );
 
-    //TODO: add de un nuevo evento
     add(NotificationReceived(notification));
   }
 
   void _onForegroundMessage(){
-    FirebaseMessaging.onMessage.listen(_handleRemoteMessage);
+    FirebaseMessaging.onMessage.listen(handleRemoteMessage);
   }
 
+  PushMessage? getMessageById( String pushMessageId ) {
+    final exist = state.notifications.any((element) => element.messageId == pushMessageId );
+    if ( !exist ) return null;
+
+    return state.notifications.firstWhere((element) => element.messageId == pushMessageId );
+  }
 
   void requestPermissions() async {
     NotificationSettings settings = await messaging.requestPermission(
