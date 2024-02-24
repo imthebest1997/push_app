@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:push_app/presentation/providers/notifications_provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
    
   const HomeScreen({Key? key}) : super(key: key);
   
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Permiso'),
+        title: Text(ref.watch(NotificationsProvider.notificationsProvider).status.toString()),
         actions: [
           IconButton(
             onPressed: (){
-              //TODO: Solicitar permisos
+              ref.read(NotificationsProvider.notificationsProvider.notifier).requestPermission();
             }, 
             icon: const Icon(Icons.settings)
           )
@@ -23,15 +25,21 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _HomeView extends StatelessWidget {
+class _HomeView extends ConsumerWidget {
   const _HomeView();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notifications = ref.watch(NotificationsProvider.notificationsProvider);
+
     return ListView.builder(
-      itemCount: 0,
+      itemCount: notifications.notifications.length,
       itemBuilder: (context, index) {
-        return const ListTile();
+        return ListTile(
+          title: Text(notifications.notifications[index].title),
+          subtitle: Text(notifications.notifications[index].body),
+          leading: notifications.notifications[index].imageUrl != null ? Image.network(notifications.notifications[index].imageUrl!) : null,
+        );
       },
     );
   }
