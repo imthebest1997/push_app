@@ -10,6 +10,14 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
 
+final notificationsProvider = StateNotifierProvider<NotificationsProvider, NotificationsState>((ref) {
+  final provider = NotificationsProvider();
+  provider._onForegroundMessage();
+  provider._initialStatusCheck();
+  return provider;
+});
+
+
 class NotificationsProvider extends StateNotifier<NotificationsState> {
   NotificationsProvider() : super(const NotificationsState());
 
@@ -54,18 +62,12 @@ class NotificationsProvider extends StateNotifier<NotificationsState> {
     state = state.copyWith(status: settings.authorizationStatus);
   }
 
-  static final notificationsProvider = StateNotifierProvider<NotificationsProvider, NotificationsState>((ref) {
-    final provider = NotificationsProvider();
-    provider._onForegroundMessage();
-    provider._initialStatusCheck();
-    return provider;
-  });
-
   void _initialStatusCheck() async {
     final settings = await FirebaseMessaging.instance.getNotificationSettings();
     state = state.copyWith(status: settings.authorizationStatus);
   }
 }
+
 
 
 class NotificationsState {

@@ -10,11 +10,11 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(ref.watch(NotificationsProvider.notificationsProvider).status.toString()),
+        title: Text(ref.watch(notificationsProvider).status.toString()),
         actions: [
           IconButton(
             onPressed: (){
-              ref.read(NotificationsProvider.notificationsProvider.notifier).requestPermission();
+              ref.read(notificationsProvider.notifier).requestPermission();
             }, 
             icon: const Icon(Icons.settings)
           )
@@ -30,7 +30,7 @@ class _HomeView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifications = ref.watch(NotificationsProvider.notificationsProvider);
+    final notifications = ref.watch(notificationsProvider);
 
     return ListView.builder(
       itemCount: notifications.notifications.length,
